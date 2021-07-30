@@ -1,5 +1,7 @@
 package gobacktest
 
+import "log"
+
 // DP sets the the precision of rounded floating numbers
 // used after calculations to format
 const DP = 4 // DP
@@ -17,6 +19,7 @@ type Backtest struct {
 	portfolio  PortfolioHandler
 	exchange   ExecutionHandler
 	statistic  StatisticHandler
+	validator  Validator
 	eventQueue []EventHandler
 }
 
@@ -40,6 +43,10 @@ func New() *Backtest {
 // SetSymbols sets the symbols to include into the backtest.
 func (t *Backtest) SetSymbols(symbols []string) {
 	t.symbols = symbols
+}
+
+func (t *Backtest) SetValidator(validator Validator) {
+	t.validator = validator
 }
 
 // SetData sets the data provider to be used within the backtest.
@@ -187,6 +194,7 @@ func (t *Backtest) eventLoop(e EventHandler) error {
 	case *Signal:
 		order, err := t.portfolio.OnSignal(event, t.data)
 		if err != nil {
+			log.Print(err)
 			break
 		}
 		t.eventQueue = append(t.eventQueue, order)
@@ -199,6 +207,14 @@ func (t *Backtest) eventLoop(e EventHandler) error {
 		t.eventQueue = append(t.eventQueue, fill)
 
 	case *Fill:
+		ok, err := t.validator.Validate(event, t.portfolio)
+		if !ok {
+			log.Printf("validation did not pass: %v, reason: %v ", event, err)
+			break
+		}
+		if event.Qty() == 0 {
+			break
+		}
 		transaction, err := t.portfolio.OnFill(event, t.data)
 		if err != nil {
 			break

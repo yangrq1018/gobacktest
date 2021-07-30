@@ -101,7 +101,7 @@ func (s *Strategy) SetEvent(event DataEvent) error {
 	return nil
 }
 
-// Signals returns a slice of all from th ealgo loop created signals.
+// Signals returns a slice of all from the algo loop created signals.
 func (s *Strategy) Signals() ([]SignalEvent, bool) {
 	if len(s.signals) == 0 {
 		return s.signals, false

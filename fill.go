@@ -1,5 +1,7 @@
 package gobacktest
 
+import "fmt"
+
 // Fill declares a basic fill event
 type Fill struct {
 	Event
@@ -10,6 +12,10 @@ type Fill struct {
 	commission  float64
 	exchangeFee float64
 	cost        float64 // the total cost of the filled order incl commission and fees
+}
+
+func (f Fill) String() string {
+	return fmt.Sprintf("%s Symbol: %s Action: %s Price: %f Qty: %d", f.Time().Format("2006-01-02"), f.Symbol(), f.Direction(), f.Price(), f.Qty())
 }
 
 // Direction returns the direction of a Fill

@@ -66,6 +66,30 @@ func (algo andAlgo) Run(s gbt.StrategyHandler) (bool, error) {
 	return true, nil
 }
 
+type allAlgo struct {
+	gbt.Algo
+	algos []gbt.AlgoHandler
+}
+
+func All(algos ...gbt.AlgoHandler) gbt.AlgoHandler {
+	return &allAlgo{
+		algos: algos,
+	}
+}
+
+func (algo allAlgo) Run(s gbt.StrategyHandler) (bool, error) {
+	for _, subAlgo := range algo.algos {
+		ok, err := subAlgo.Run(s)
+		if err != nil {
+			return false, err
+		}
+		if !ok {
+			return false, nil
+		}
+	}
+	return true, nil
+}
+
 type orAlgo struct {
 	gbt.Algo
 	a, b gbt.AlgoHandler

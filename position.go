@@ -35,6 +35,14 @@ type Position struct {
 	totalProfitLoss  float64
 }
 
+func (p *Position) Qty() int64 {
+	return p.qty
+}
+
+func (p *Position) MarketValue() float64 {
+	return p.marketValue
+}
+
 // Create a new position based on a fill event
 func (p *Position) Create(fill FillEvent) {
 	p.timestamp = fill.Time()
@@ -181,7 +189,7 @@ func (p *Position) updateValue(l float64) {
 	marketPrice := latest
 	p.marketPrice = marketPrice
 	// abs(qty) * current
-	marketValue := math.Abs(qty) * latest
+	marketValue := qty * latest
 	p.marketValue = marketValue
 
 	// qty * current - costBasis

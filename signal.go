@@ -5,15 +5,30 @@ type Direction int
 
 // different types of order directions
 const (
-	// Buy
+	// BOT Buy
 	BOT Direction = iota // 0
-	// Sell
+	// SLD Sell
 	SLD
-	// Hold
+	// HLD Hold
 	HLD
-	// Exit
+	// EXT Exit
 	EXT
 )
+
+func (d Direction) String() string {
+	switch d {
+	case BOT:
+		return "BUY"
+	case SLD:
+		return "SELL"
+	case HLD:
+		return "HOLD"
+	case EXT:
+		return "EXIT"
+	default:
+		return ""
+	}
+}
 
 // Signal declares a basic signal event
 type Signal struct {

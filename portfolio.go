@@ -13,7 +13,7 @@ type PortfolioHandler interface {
 
 // OnSignaler is an interface for the OnSignal method
 type OnSignaler interface {
-	OnSignal(SignalEvent, DataHandler) (*Order, error)
+	OnSignal(SignalEvent, DataHandler) (OrderEvent, error)
 }
 
 // OnFiller is an interface for the OnFill method
@@ -101,7 +101,7 @@ func (p *Portfolio) Reset() error {
 }
 
 // OnSignal handles an incomming signal event
-func (p *Portfolio) OnSignal(signal SignalEvent, data DataHandler) (*Order, error) {
+func (p *Portfolio) OnSignal(signal SignalEvent, data DataHandler) (OrderEvent, error) {
 	// fmt.Printf("Portfolio receives Signal: %#v \n", signal)
 
 	// set order type
@@ -124,13 +124,10 @@ func (p *Portfolio) OnSignal(signal SignalEvent, data DataHandler) (*Order, erro
 
 	sizedOrder, err := p.sizeManager.SizeOrder(initialOrder, latest, p)
 	if err != nil {
+		return sizedOrder, err
 	}
 
-	order, err := p.riskManager.EvaluateOrder(sizedOrder, latest, p.holdings)
-	if err != nil {
-	}
-
-	return order, nil
+	return p.riskManager.EvaluateOrder(sizedOrder, latest, p.holdings)
 }
 
 // OnFill handles an incomming fill event
@@ -226,7 +223,6 @@ func (p Portfolio) Cash() float64 {
 func (p Portfolio) Value() float64 {
 	var holdingValue float64
 	for _, pos := range p.holdings {
-
 		holdingValue += pos.marketValue
 	}
 

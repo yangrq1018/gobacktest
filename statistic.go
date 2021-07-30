@@ -92,7 +92,7 @@ func (s *Statistic) Update(d DataEvent, p PortfolioHandler) {
 		s.low = e
 	}
 
-	// append new quity point
+	// append new equity point
 	s.equity = append(s.equity, e)
 }
 
