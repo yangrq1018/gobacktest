@@ -169,12 +169,12 @@ func TestResetStatistic(t *testing.T) {
 				transactionHistory: []FillEvent{
 					&Fill{qty: 100},
 				},
-				equity: []equityPoint{
-					{equity: 100},
-					{equity: 90},
+				equity: []EquityPoint{
+					{Equity: 100},
+					{Equity: 90},
 				},
-				high: equityPoint{equity: 100},
-				low:  equityPoint{equity: 90},
+				high: EquityPoint{Equity: 100},
+				low:  EquityPoint{Equity: 90},
 			},
 			Statistic{},
 		},
@@ -182,9 +182,9 @@ func TestResetStatistic(t *testing.T) {
 			Statistic{
 				eventHistory:       []EventHandler{},
 				transactionHistory: []FillEvent{},
-				equity:             []equityPoint{},
-				high:               equityPoint{},
-				low:                equityPoint{},
+				equity:             []EquityPoint{},
+				high:               EquityPoint{},
+				low:                EquityPoint{},
 			},
 			Statistic{},
 		},
@@ -209,27 +209,27 @@ func TestTotalEquityReturn(t *testing.T) {
 	}{
 		{"testing for multiple entryPoints",
 			Statistic{
-				equity: []equityPoint{
-					{equity: 100, equityReturn: 0},
-					{equity: 120, equityReturn: 0.2},
+				equity: []EquityPoint{
+					{Equity: 100, EquityReturn: 0},
+					{Equity: 120, EquityReturn: 0.2},
 				},
 			},
 			0.2,
 			nil},
 		{"testing for multiple entryPoints with same value",
 			Statistic{
-				equity: []equityPoint{
-					{equity: 100, equityReturn: 0},
-					{equity: 100, equityReturn: 0},
+				equity: []EquityPoint{
+					{Equity: 100, EquityReturn: 0},
+					{Equity: 100, EquityReturn: 0},
 				},
 			},
 			0,
 			nil},
 		{"testing for last entryPoints with 0 equity",
 			Statistic{
-				equity: []equityPoint{
-					{equity: 100, equityReturn: 0.1},
-					{equity: 0, equityReturn: -1},
+				equity: []EquityPoint{
+					{Equity: 100, EquityReturn: 0.1},
+					{Equity: 0, EquityReturn: -1},
 				},
 			},
 			-1,
@@ -251,19 +251,19 @@ func TestTotalEquityReturn(t *testing.T) {
 func TestGetEquityPoint(t *testing.T) {
 	var statCases = map[string]Statistic{
 		"multiple": {
-			equity: []equityPoint{
-				{equity: 100, equityReturn: 0.1},
-				{equity: 110, equityReturn: 0.2},
-				{equity: 120, equityReturn: 0.3},
+			equity: []EquityPoint{
+				{Equity: 100, EquityReturn: 0.1},
+				{Equity: 110, EquityReturn: 0.2},
+				{Equity: 120, EquityReturn: 0.3},
 			},
 		},
 		"single": {
-			equity: []equityPoint{
-				{equity: 150, equityReturn: 0.25},
+			equity: []EquityPoint{
+				{Equity: 150, EquityReturn: 0.25},
 			},
 		},
 		"empty": {
-			equity: []equityPoint{},
+			equity: []EquityPoint{},
 		},
 	}
 
@@ -271,7 +271,7 @@ func TestGetEquityPoint(t *testing.T) {
 	type testCase struct {
 		msg   string
 		stat  Statistic
-		expEP equityPoint
+		expEP EquityPoint
 		expOk bool
 	}
 
@@ -279,15 +279,15 @@ func TestGetEquityPoint(t *testing.T) {
 	var testCasesFirst = []testCase{
 		{"testing first for multiple entryPoints",
 			statCases["multiple"],
-			equityPoint{equity: 100, equityReturn: 0.1},
+			EquityPoint{Equity: 100, EquityReturn: 0.1},
 			true},
 		{"testing first for single entryPoints",
 			statCases["single"],
-			equityPoint{equity: 150, equityReturn: 0.25},
+			EquityPoint{Equity: 150, EquityReturn: 0.25},
 			true},
 		{"testing first for nil entryPoints",
 			statCases["empty"],
-			equityPoint{},
+			EquityPoint{},
 			false},
 	}
 
@@ -303,15 +303,15 @@ func TestGetEquityPoint(t *testing.T) {
 	var testCasesLast = []testCase{
 		{"testing last for multiple entryPoints",
 			statCases["multiple"],
-			equityPoint{equity: 120, equityReturn: 0.3},
+			EquityPoint{Equity: 120, EquityReturn: 0.3},
 			true},
 		{"testing last for single entryPoints",
 			statCases["single"],
-			equityPoint{equity: 150, equityReturn: 0.25},
+			EquityPoint{Equity: 150, EquityReturn: 0.25},
 			true},
 		{"testing last for nil entryPoints",
 			statCases["empty"],
-			equityPoint{},
+			EquityPoint{},
 			false},
 	}
 
@@ -328,55 +328,55 @@ func TestCalcEquityReturn(t *testing.T) {
 	var testCases = []struct {
 		msg   string
 		stat  Statistic
-		ep    equityPoint
-		expEP equityPoint
+		ep    EquityPoint
+		expEP EquityPoint
 	}{
 		{"testing equity return with single equity points",
 			Statistic{
-				equity: []equityPoint{
-					{equity: 100},
+				equity: []EquityPoint{
+					{Equity: 100},
 				},
 			},
-			equityPoint{equity: 90},
-			equityPoint{
-				equity:       90,
-				equityReturn: -0.1,
+			EquityPoint{Equity: 90},
+			EquityPoint{
+				Equity:       90,
+				EquityReturn: -0.1,
 			},
 		},
 		{"testing equity return with multiple equity points",
 			Statistic{
-				equity: []equityPoint{
-					{equity: 100},
-					{equity: 90},
-					{equity: 110},
+				equity: []EquityPoint{
+					{Equity: 100},
+					{Equity: 90},
+					{Equity: 110},
 				},
 			},
-			equityPoint{equity: 100},
-			equityPoint{
-				equity:       100,
-				equityReturn: -0.0909,
+			EquityPoint{Equity: 100},
+			EquityPoint{
+				Equity:       100,
+				EquityReturn: -0.0909,
 			},
 		},
 		{"testing equity return with single equity points but 0 equity",
 			Statistic{
-				equity: []equityPoint{
-					{equity: 0},
+				equity: []EquityPoint{
+					{Equity: 0},
 				},
 			},
-			equityPoint{equity: 100},
-			equityPoint{
-				equity:       100,
-				equityReturn: 1,
+			EquityPoint{Equity: 100},
+			EquityPoint{
+				Equity:       100,
+				EquityReturn: 1,
 			},
 		},
 		{"testing equity return with nil equity points",
 			Statistic{
-				equity: []equityPoint{},
+				equity: []EquityPoint{},
 			},
-			equityPoint{equity: 100},
-			equityPoint{
-				equity:   100,
-				drawdown: 0,
+			EquityPoint{Equity: 100},
+			EquityPoint{
+				Equity:   100,
+				Drawdown: 0,
 			},
 		},
 	}
@@ -395,45 +395,45 @@ func TestCalcDrawdown(t *testing.T) {
 	var testCases = []struct {
 		msg   string
 		stat  Statistic
-		ep    equityPoint
-		expEP equityPoint
+		ep    EquityPoint
+		expEP EquityPoint
 	}{
-		{"testing drawdown with simple high equityPoint",
+		{"testing drawdown with simple high EquityPoint",
 			Statistic{
-				high: equityPoint{equity: 100},
+				high: EquityPoint{Equity: 100},
 			},
-			equityPoint{equity: 90},
-			equityPoint{
-				equity:   90,
-				drawdown: -0.1,
+			EquityPoint{Equity: 90},
+			EquityPoint{
+				Equity:   90,
+				Drawdown: -0.1,
 			},
 		},
-		{"testing drawdown with simple high equityPoint equal equity",
+		{"testing drawdown with simple high EquityPoint equal equity",
 			Statistic{
-				high: equityPoint{equity: 100},
+				high: EquityPoint{Equity: 100},
 			},
-			equityPoint{equity: 100},
-			equityPoint{
-				equity:   100,
-				drawdown: 0,
+			EquityPoint{Equity: 100},
+			EquityPoint{
+				Equity:   100,
+				Drawdown: 0,
 			},
 		},
-		{"testing drawdown with simple high equityPoint lower equity",
+		{"testing drawdown with simple high EquityPoint lower equity",
 			Statistic{
-				high: equityPoint{equity: 90},
+				high: EquityPoint{Equity: 90},
 			},
-			equityPoint{equity: 100},
-			equityPoint{
-				equity:   100,
-				drawdown: 0,
+			EquityPoint{Equity: 100},
+			EquityPoint{
+				Equity:   100,
+				Drawdown: 0,
 			},
 		},
-		{"testing drawdown with empty high equityPoint",
+		{"testing drawdown with empty high EquityPoint",
 			Statistic{},
-			equityPoint{equity: 100},
-			equityPoint{
-				equity:   100,
-				drawdown: 0,
+			EquityPoint{Equity: 100},
+			EquityPoint{
+				Equity:   100,
+				Drawdown: 0,
 			},
 		},
 	}
@@ -459,7 +459,7 @@ func TestMaxDrawdown(t *testing.T) {
 	var testCases = []struct {
 		msg     string
 		stat    Statistic
-		expEP   equityPoint
+		expEP   EquityPoint
 		expInt  int
 		expMax  float64
 		expTime time.Time
@@ -467,15 +467,15 @@ func TestMaxDrawdown(t *testing.T) {
 	}{
 		{"testing maxdrawdown for multiple entryPoints",
 			Statistic{
-				equity: []equityPoint{
-					{timestamp: time1, equity: 100, drawdown: 0},
-					{timestamp: time2, equity: 110, drawdown: 0},
-					{timestamp: time3, equity: 105, drawdown: -0.0455},
-					{timestamp: time4, equity: 95, drawdown: -0.1364},
-					{timestamp: time5, drawdown: 0},
+				equity: []EquityPoint{
+					{Timestamp: time1, Equity: 100, Drawdown: 0},
+					{Timestamp: time2, Equity: 110, Drawdown: 0},
+					{Timestamp: time3, Equity: 105, Drawdown: -0.0455},
+					{Timestamp: time4, Equity: 95, Drawdown: -0.1364},
+					{Timestamp: time5, Drawdown: 0},
 				},
 			},
-			equityPoint{timestamp: time4, equity: 95, drawdown: -0.1364},
+			EquityPoint{Timestamp: time4, Equity: 95, Drawdown: -0.1364},
 			3,
 			-0.1364,
 			time4,
@@ -483,11 +483,11 @@ func TestMaxDrawdown(t *testing.T) {
 		},
 		{"testing maxdrawdown for single entryPoints",
 			Statistic{
-				equity: []equityPoint{
-					{timestamp: time1, equity: 100, drawdown: 0},
+				equity: []EquityPoint{
+					{Timestamp: time1, Equity: 100, Drawdown: 0},
 				},
 			},
-			equityPoint{timestamp: time1, equity: 100, drawdown: 0},
+			EquityPoint{Timestamp: time1, Equity: 100, Drawdown: 0},
 			0,
 			0,
 			time1,
@@ -495,7 +495,7 @@ func TestMaxDrawdown(t *testing.T) {
 		},
 		{"testing maxdrawdown for nil entryPoints",
 			Statistic{},
-			equityPoint{},
+			EquityPoint{},
 			0,
 			0,
 			time.Time{},
@@ -549,20 +549,20 @@ func TestSharpRatio(t *testing.T) {
 	}{
 		{"testing simple positiv sharp ratio",
 			Statistic{
-				equity: []equityPoint{
-					{equityReturn: 1},
-					{equityReturn: 2},
-					{equityReturn: 3},
+				equity: []EquityPoint{
+					{EquityReturn: 1},
+					{EquityReturn: 2},
+					{EquityReturn: 3},
 				},
 			},
 			0,
 			2},
 		{"testing simple zero sharp ratio",
 			Statistic{
-				equity: []equityPoint{
-					{equityReturn: -1},
-					{equityReturn: 0},
-					{equityReturn: 1},
+				equity: []EquityPoint{
+					{EquityReturn: -1},
+					{EquityReturn: 0},
+					{EquityReturn: 1},
 				},
 			},
 			0,
@@ -587,12 +587,12 @@ func TestSortinoRatio(t *testing.T) {
 	}{
 		{"testing simple sortino ratio",
 			Statistic{
-				equity: []equityPoint{
-					{equityReturn: -3},
-					{equityReturn: -2},
-					{equityReturn: -1},
-					{equityReturn: 0},
-					{equityReturn: 1},
+				equity: []EquityPoint{
+					{EquityReturn: -3},
+					{EquityReturn: -2},
+					{EquityReturn: -1},
+					{EquityReturn: 0},
+					{EquityReturn: 1},
 				},
 			},
 			0,

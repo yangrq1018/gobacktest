@@ -55,24 +55,28 @@ type Resulter interface {
 type Statistic struct {
 	eventHistory       []EventHandler
 	transactionHistory []FillEvent
-	equity             []equityPoint
-	high               equityPoint
-	low                equityPoint
+	equity             []EquityPoint
+	high               EquityPoint
+	low                EquityPoint
 }
 
-type equityPoint struct {
-	timestamp    time.Time
-	equity       float64
-	equityReturn float64
-	drawdown     float64
+type EquityPoint struct {
+	Timestamp    time.Time
+	Equity       float64
+	EquityReturn float64
+	Drawdown     float64
+}
+
+func (s *Statistic) Equity() []EquityPoint {
+	return s.equity
 }
 
 // Update the complete statistics to a given data event.
 func (s *Statistic) Update(d DataEvent, p PortfolioHandler) {
 	// create new equity point based on current data timestamp and portfolio value
-	e := equityPoint{}
-	e.timestamp = d.Time()
-	e.equity = p.Value()
+	e := EquityPoint{}
+	e.Timestamp = d.Time()
+	e.Equity = p.Value()
 
 	// calc equity return for current equity point
 	if len(s.equity) > 0 {
@@ -85,10 +89,10 @@ func (s *Statistic) Update(d DataEvent, p PortfolioHandler) {
 	}
 
 	// set high and low equity point
-	if e.equity >= s.high.equity {
+	if e.Equity >= s.high.Equity {
 		s.high = e
 	}
-	if e.equity <= s.low.equity {
+	if e.Equity <= s.low.Equity {
 		s.low = e
 	}
 
@@ -121,8 +125,8 @@ func (s *Statistic) Reset() error {
 	s.eventHistory = nil
 	s.transactionHistory = nil
 	s.equity = nil
-	s.high = equityPoint{}
-	s.low = equityPoint{}
+	s.high = EquityPoint{}
+	s.low = EquityPoint{}
 	return nil
 }
 
@@ -143,13 +147,13 @@ func (s Statistic) TotalEquityReturn() (r float64, err error) {
 	if !ok {
 		return r, errors.New("could not calculate totalEquityReturn, no equity points found")
 	}
-	firstEquity := firstEquityPoint.equity
+	firstEquity := firstEquityPoint.Equity
 
 	lastEquityPoint, _ := s.lastEquityPoint()
 	// if !ok {
 	// 	return r, errors.New("could not calculate totalEquityReturn, no last equity point")
 	// }
-	lastEquity := lastEquityPoint.equity
+	lastEquity := lastEquityPoint.Equity
 
 	totalEquityReturn := (lastEquity - firstEquity) / firstEquity
 	total := math.Round(totalEquityReturn*math.Pow10(DP)) / math.Pow10(DP)
@@ -159,13 +163,13 @@ func (s Statistic) TotalEquityReturn() (r float64, err error) {
 // MaxDrawdown returns the maximum draw down value in percent.
 func (s Statistic) MaxDrawdown() float64 {
 	_, ep := s.maxDrawdownPoint()
-	return ep.drawdown
+	return ep.Drawdown
 }
 
 // MaxDrawdownTime returns the time of the maximum draw down value.
 func (s Statistic) MaxDrawdownTime() time.Time {
 	_, ep := s.maxDrawdownPoint()
-	return ep.timestamp
+	return ep.Timestamp
 }
 
 // MaxDrawdownDuration returns the maximum draw down value in percent
@@ -177,14 +181,14 @@ func (s Statistic) MaxDrawdownDuration() (d time.Duration) {
 	}
 
 	// walk the equity slice up to find a higher equity point
-	maxPoint := equityPoint{}
+	maxPoint := EquityPoint{}
 	for index := i; index >= 0; index-- {
-		if s.equity[index].equity > maxPoint.equity {
+		if s.equity[index].Equity > maxPoint.Equity {
 			maxPoint = s.equity[index]
 		}
 	}
 
-	d = ep.timestamp.Sub(maxPoint.timestamp)
+	d = ep.Timestamp.Sub(maxPoint.Timestamp)
 	return d
 }
 
@@ -193,7 +197,7 @@ func (s *Statistic) SharpRatio(riskfree float64) float64 {
 	var equityReturns = make([]float64, len(s.equity))
 
 	for i, v := range s.equity {
-		equityReturns[i] = v.equityReturn
+		equityReturns[i] = v.EquityReturn
 	}
 	mean, stddev := stat.MeanStdDev(equityReturns, nil)
 
@@ -206,7 +210,7 @@ func (s *Statistic) SortinoRatio(riskfree float64) float64 {
 	var equityReturns = make([]float64, len(s.equity))
 
 	for i, v := range s.equity {
-		equityReturns[i] = v.equityReturn
+		equityReturns[i] = v.EquityReturn
 	}
 	mean := stat.Mean(equityReturns, nil)
 
@@ -223,8 +227,8 @@ func (s *Statistic) SortinoRatio(riskfree float64) float64 {
 	return sortino
 }
 
-// returns the first equityPoint
-func (s Statistic) firstEquityPoint() (ep equityPoint, ok bool) {
+// returns the first EquityPoint
+func (s Statistic) firstEquityPoint() (ep EquityPoint, ok bool) {
 	if len(s.equity) <= 0 {
 		return ep, false
 	}
@@ -233,8 +237,8 @@ func (s Statistic) firstEquityPoint() (ep equityPoint, ok bool) {
 	return ep, true
 }
 
-// returns the last equityPoint
-func (s Statistic) lastEquityPoint() (ep equityPoint, ok bool) {
+// returns the last EquityPoint
+func (s Statistic) lastEquityPoint() (ep EquityPoint, ok bool) {
 	if len(s.equity) <= 0 {
 		return ep, false
 	}
@@ -244,52 +248,52 @@ func (s Statistic) lastEquityPoint() (ep equityPoint, ok bool) {
 }
 
 // calculates the equity return of an equity point relativ to the last equity point
-func (s Statistic) calcEquityReturn(e equityPoint) equityPoint {
+func (s Statistic) calcEquityReturn(e EquityPoint) EquityPoint {
 	last, ok := s.lastEquityPoint()
 	// no equity point before the current
 	if !ok {
-		e.equityReturn = 0
+		e.EquityReturn = 0
 		return e
 	}
 
-	lastEquity := last.equity
-	currentEquity := e.equity
+	lastEquity := last.Equity
+	currentEquity := e.Equity
 
 	// last equity point has 0 equity
 	if lastEquity == 0 {
-		e.equityReturn = 1
+		e.EquityReturn = 1
 		return e
 	}
 
 	equityReturn := (currentEquity - lastEquity) / lastEquity
-	e.equityReturn = math.Round(equityReturn*math.Pow10(DP)) / math.Pow10(DP)
+	e.EquityReturn = math.Round(equityReturn*math.Pow10(DP)) / math.Pow10(DP)
 
 	return e
 }
 
 // calculates the drawdown of an equity point relativ to the latest high of the statistic handler
-func (s Statistic) calcDrawdown(e equityPoint) equityPoint {
-	if s.high.equity == 0 {
-		e.drawdown = 0
+func (s Statistic) calcDrawdown(e EquityPoint) EquityPoint {
+	if s.high.Equity == 0 {
+		e.Drawdown = 0
 		return e
 	}
 
-	lastHigh := s.high.equity
-	equity := e.equity
+	lastHigh := s.high.Equity
+	equity := e.Equity
 
 	if equity >= lastHigh {
-		e.drawdown = 0
+		e.Drawdown = 0
 		return e
 	}
 
 	drawdown := (equity - lastHigh) / lastHigh
-	e.drawdown = math.Round(drawdown*math.Pow10(DP)) / math.Pow10(DP)
+	e.Drawdown = math.Round(drawdown*math.Pow10(DP)) / math.Pow10(DP)
 
 	return e
 }
 
 // returns the equity point with the maximum drawdown
-func (s Statistic) maxDrawdownPoint() (i int, ep equityPoint) {
+func (s Statistic) maxDrawdownPoint() (i int, ep EquityPoint) {
 	if len(s.equity) == 0 {
 		return 0, ep
 	}
@@ -298,8 +302,8 @@ func (s Statistic) maxDrawdownPoint() (i int, ep equityPoint) {
 	var index = 0
 
 	for i, ep := range s.equity {
-		if ep.drawdown < maxDrawdown {
-			maxDrawdown = ep.drawdown
+		if ep.Drawdown < maxDrawdown {
+			maxDrawdown = ep.Drawdown
 			index = i
 		}
 	}
