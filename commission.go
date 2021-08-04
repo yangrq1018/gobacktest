@@ -1,12 +1,8 @@
 package gobacktest
 
-import (
-// "fmt"
-)
-
 // CommissionHandler is the basic interface for executing orders
 type CommissionHandler interface {
-	Calculate(qty, price float64) (float64, error)
+	Calculate(f Fill) (float64, error)
 }
 
 // FixedCommission is a commission handler implementation which returns a fixed price commission
@@ -15,9 +11,9 @@ type FixedCommission struct {
 }
 
 // Calculate calculates the commission of the trade
-func (c *FixedCommission) Calculate(qty, price float64) (float64, error) {
+func (c *FixedCommission) Calculate(f Fill) (float64, error) {
 	// no trade value, no commision
-	if qty == 0 || price == 0 {
+	if f.qty == 0 || f.price == 0 {
 		return 0, nil
 	}
 	return c.Commission, nil
@@ -31,13 +27,13 @@ type TresholdFixedCommission struct {
 }
 
 // Calculate calculates the commission of the trade
-func (c *TresholdFixedCommission) Calculate(qty, price float64) (float64, error) {
+func (c *TresholdFixedCommission) Calculate(f Fill) (float64, error) {
 	// no trade value, no commision
-	if qty == 0 || price == 0 {
+	if f.qty == 0 || f.price == 0 {
 		return 0, nil
 	}
 	// minimum value of trade below treshold
-	if c.MinValue > (qty * price) {
+	if c.MinValue > (float64(f.qty) * f.price) {
 		return 0, nil
 	}
 
@@ -51,13 +47,13 @@ type PercentageCommission struct {
 }
 
 // Calculate calculates the commission of the trade
-func (c *PercentageCommission) Calculate(qty, price float64) (float64, error) {
+func (c *PercentageCommission) Calculate(f Fill) (float64, error) {
 	// no trade value, no commision
-	if qty == 0 || price == 0 {
+	if f.qty == 0 || f.price == 0 {
 		return 0, nil
 	}
 
-	commission := qty * price * c.Commission
+	commission := float64(f.qty) * f.price * c.Commission
 
 	return commission, nil
 }
@@ -71,23 +67,23 @@ type ValueCommission struct {
 }
 
 // Calculate calculates the commission of the trade
-func (c *ValueCommission) Calculate(qty, price float64) (float64, error) {
+func (c *ValueCommission) Calculate(f Fill) (float64, error) {
 	// no trade value, no commision
-	if qty == 0 || price == 0 {
+	if f.qty == 0 || f.price == 0 {
 		return 0, nil
 	}
 
 	// value of trade below minimum commission
-	if c.MinCommission > (qty * price * c.Commission) {
+	if c.MinCommission > (float64(f.qty) * f.price * c.Commission) {
 		return c.MinCommission, nil
 	}
 
 	// value of trade above maximum commission
-	if c.MaxCommission < (qty * price * c.Commission) {
+	if c.MaxCommission < (float64(f.qty) * f.price * c.Commission) {
 		return c.MaxCommission, nil
 	}
 
-	commission := qty * price * c.Commission
+	commission := float64(f.qty) * f.price * c.Commission
 
 	return commission, nil
 }

@@ -9,7 +9,7 @@ func TestFixedCommission(t *testing.T) {
 	var testCases = []struct {
 		msg    string
 		c      CommissionHandler
-		qty    float64
+		qty    int64
 		price  float64
 		expCom float64
 		expErr error
@@ -32,7 +32,7 @@ func TestFixedCommission(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		commission, err := tc.c.Calculate(tc.qty, tc.price)
+		commission, err := tc.c.Calculate(Fill{qty: tc.qty, price: tc.price})
 		if commission != tc.expCom || (reflect.TypeOf(err) != reflect.TypeOf(tc.expErr)) {
 			t.Errorf("%v Calculate(): \nexpected %#v, \nactual %#v", tc.msg, tc.expCom, commission)
 		}
@@ -43,7 +43,7 @@ func TestTresholdFixedCommission(t *testing.T) {
 	var testCases = []struct {
 		msg    string
 		c      CommissionHandler
-		qty    float64
+		qty    int64
 		price  float64
 		expCom float64
 		expErr error
@@ -66,7 +66,7 @@ func TestTresholdFixedCommission(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		commission, err := tc.c.Calculate(tc.qty, tc.price)
+		commission, err := tc.c.Calculate(Fill{qty: tc.qty, price: tc.price})
 		if commission != tc.expCom || (reflect.TypeOf(err) != reflect.TypeOf(tc.expErr)) {
 			t.Errorf("%v Calculate(): \nexpected %#v, \nactual %#v", tc.msg, tc.expCom, commission)
 		}
@@ -77,7 +77,7 @@ func TestPercentageCommission(t *testing.T) {
 	var testCases = []struct {
 		msg    string
 		c      CommissionHandler
-		qty    float64
+		qty    int64
 		price  float64
 		expCom float64
 		expErr error
@@ -95,7 +95,7 @@ func TestPercentageCommission(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		commission, err := tc.c.Calculate(tc.qty, tc.price)
+		commission, err := tc.c.Calculate(Fill{qty: tc.qty, price: tc.price})
 		if commission != tc.expCom || (reflect.TypeOf(err) != reflect.TypeOf(tc.expErr)) {
 			t.Errorf("%v Calculate(): \nexpected %#v, \nactual %#v", tc.msg, tc.expCom, commission)
 		}
@@ -106,7 +106,7 @@ func TestValueCommission(t *testing.T) {
 	var testCases = []struct {
 		msg    string
 		c      CommissionHandler
-		qty    float64
+		qty    int64
 		price  float64
 		expCom float64
 		expErr error
@@ -134,7 +134,7 @@ func TestValueCommission(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		commission, err := tc.c.Calculate(tc.qty, tc.price)
+		commission, err := tc.c.Calculate(Fill{qty: tc.qty, price: tc.price})
 		if commission != tc.expCom || (reflect.TypeOf(err) != reflect.TypeOf(tc.expErr)) {
 			t.Errorf("%v Calculate(): \nexpected %#v, \nactual %#v", tc.msg, tc.expCom, commission)
 		}

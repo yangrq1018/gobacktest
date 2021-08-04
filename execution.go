@@ -47,13 +47,13 @@ func (e *Exchange) OnOrder(order OrderEvent, data DataHandler) (*Fill, error) {
 
 	f.direction = order.Direction()
 
-	commission, err := e.Commission.Calculate(float64(f.qty), f.price)
+	commission, err := e.Commission.Calculate(*f)
 	if err != nil {
 		return f, err
 	}
 	f.commission = commission
 
-	exchangeFee, err := e.ExchangeFee.Fee()
+	exchangeFee, err := e.ExchangeFee.Fee(Fill{})
 	if err != nil {
 		return f, err
 	}

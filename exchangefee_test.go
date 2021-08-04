@@ -23,7 +23,7 @@ func TestFixedExchangeFee(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		exchangeFee, err := tc.e.Fee()
+		exchangeFee, err := tc.e.Fee(Fill{})
 		if exchangeFee != tc.expFee || (reflect.TypeOf(err) != reflect.TypeOf(tc.expErr)) {
 			t.Errorf("%v Fee(): \nexpected %#v, \nactual %#v", tc.msg, tc.expFee, exchangeFee)
 		}

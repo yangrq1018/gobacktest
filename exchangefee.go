@@ -6,7 +6,7 @@ import (
 
 // ExchangeFeeHandler is the basic interface for managing the exchange fee
 type ExchangeFeeHandler interface {
-	Fee() (float64, error)
+	Fee(f Fill) (float64, error)
 }
 
 // FixedExchangeFee returns a fixed exchange fee
@@ -15,6 +15,6 @@ type FixedExchangeFee struct {
 }
 
 // Fee returns the set exchange fee of the trade
-func (e *FixedExchangeFee) Fee() (float64, error) {
+func (e *FixedExchangeFee) Fee(f Fill) (float64, error) {
 	return e.ExchangeFee, nil
 }
