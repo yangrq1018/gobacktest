@@ -1,9 +1,5 @@
 package gobacktest
 
-import (
-// "fmt"
-)
-
 // ExecutionHandler is the basic interface for executing orders
 type ExecutionHandler interface {
 	OnData(DataEvent) (*Fill, error)
@@ -38,7 +34,7 @@ func (e *Exchange) OnOrder(order OrderEvent, data DataHandler) (*Fill, error) {
 
 	// simple implementation, creates a direct fill from the order
 	// based on the last known data price
-	f := &Fill{
+	f := Fill{
 		Event:    Event{timestamp: order.Time(), symbol: order.Symbol()},
 		Exchange: e.Symbol,
 		qty:      order.Qty(),
@@ -47,21 +43,21 @@ func (e *Exchange) OnOrder(order OrderEvent, data DataHandler) (*Fill, error) {
 
 	f.direction = order.Direction()
 
-	commission, err := e.Commission.Calculate(*f)
+	commission, err := e.Commission.Calculate(f)
 	if err != nil {
-		return f, err
+		return nil, err
 	}
 	f.commission = commission
 
-	exchangeFee, err := e.ExchangeFee.Fee(Fill{})
+	exchangeFee, err := e.ExchangeFee.Fee(f)
 	if err != nil {
-		return f, err
+		return nil, err
 	}
 	f.exchangeFee = exchangeFee
 
 	f.cost = e.calculateCost(commission, exchangeFee)
 
-	return f, nil
+	return &f, nil
 }
 
 // calculateCost() calculates the total cost for a stock trade

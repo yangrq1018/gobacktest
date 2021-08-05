@@ -63,6 +63,7 @@ type Statistic struct {
 type EquityPoint struct {
 	Timestamp    time.Time
 	Equity       float64
+	Cash         float64
 	EquityReturn float64
 	Drawdown     float64
 }
@@ -77,6 +78,7 @@ func (s *Statistic) Update(d DataEvent, p PortfolioHandler) {
 	e := EquityPoint{}
 	e.Timestamp = d.Time()
 	e.Equity = p.Value()
+	e.Cash = p.Cash()
 
 	// calc equity return for current equity point
 	if len(s.equity) > 0 {
