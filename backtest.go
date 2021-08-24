@@ -207,10 +207,12 @@ func (t *Backtest) eventLoop(e EventHandler) error {
 		t.eventQueue = append(t.eventQueue, fill)
 
 	case *Fill:
-		ok, err := t.validator.Validate(event, t.portfolio)
-		if !ok {
-			log.Printf("validation did not pass: %v, reason: %v ", event, err)
-			break
+		if t.validator != nil {
+			ok, err := t.validator.Validate(event, t.portfolio)
+			if !ok {
+				log.Printf("validation did not pass: %v, reason: %v ", event, err)
+				break
+			}
 		}
 		if event.Qty() == 0 {
 			break
